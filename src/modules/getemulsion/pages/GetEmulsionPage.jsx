@@ -9,6 +9,8 @@ export default function cekEmulsion({ feature }) {
       fetchData={getEmulsion}
       errorMessage="Gagal mengambil Emulsion"
       thblrekMultiple
+      showThblrekShortcuts
+      requireIdpel
       showUnitupi={false}
     />
   );

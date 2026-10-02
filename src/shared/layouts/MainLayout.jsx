@@ -1,11 +1,12 @@
 import {
   AppstoreAddOutlined,
+  BarChartOutlined,
   CloseOutlined,
   MoreOutlined,
   DownOutlined,
   HolderOutlined,
 } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Spin, Tabs, Typography } from "antd";
+import { Button, Dropdown, FloatButton, Layout, Modal, Spin, Tabs, Typography } from "antd";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import AppHeader from "../components/AppHeader";
@@ -189,12 +190,16 @@ const getLazyPage = (loader) => {
   return lazyPageCache.get(loader);
 };
 
+const emulsionMenu = featureMenuMap.get("getemulsion");
+const EmulsionPage = getLazyPage(emulsionMenu?.loader);
+
 export default function MainLayout() {
   const [layoutMode, setLayoutMode] = useState("tabs");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [tabs, setTabs] = useState([HOME_TAB]);
   const [activeKey, setActiveKey] = useState(HOME_TAB.key);
   const [menuSearchOpen, setMenuSearchOpen] = useState(false);
+  const [emulsionModalOpen, setEmulsionModalOpen] = useState(false);
   const [workspaceHidden, setWorkspaceHidden] = useState(false);
   const contentScrollRef = useRef(null);
 
@@ -510,6 +515,40 @@ export default function MainLayout() {
         showOpenAll
         title="Tambah Menu"
       />
+
+      {layoutMode === "stack" ? (
+        <>
+          <FloatButton
+            type="primary"
+            icon={<BarChartOutlined />}
+            //description="Emulsion"
+            tooltip="Cek Emulsion Pelanggan"
+            onClick={() => setEmulsionModalOpen(true)}
+            style={{ right: 36, bottom: 36 }}
+          />
+
+          <Modal
+            open={emulsionModalOpen}
+            onCancel={() => setEmulsionModalOpen(false)}
+            footer={null}
+            title="Cek Emulsion Pelanggan"
+            width="min(1400px, 96vw)"
+            styles={{
+              body: {
+                maxHeight: "calc(100vh - 160px)",
+                overflowY: "auto",
+                padding: 12,
+              },
+            }}
+          >
+            {emulsionModalOpen && EmulsionPage ? (
+              <Suspense fallback={<div style={tabLoadingStyle}><Spin size="large" /></div>}>
+                <EmulsionPage feature={emulsionMenu} />
+              </Suspense>
+            ) : null}
+          </Modal>
+        </>
+      ) : null}
     </Layout>
   );
 }

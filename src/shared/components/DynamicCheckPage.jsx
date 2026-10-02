@@ -203,6 +203,14 @@ const formatThblrekParam = (value) => {
   return value?.format ? value.format("YYYYMM") : value;
 };
 
+const sortThblrekValues = (value) => {
+  if (!Array.isArray(value)) return value;
+
+  return [...value]
+    .filter(Boolean)
+    .sort((left, right) => right.valueOf() - left.valueOf());
+};
+
 const normalizeArrayFilter = (value) => {
   if (Array.isArray(value)) return value.filter(Boolean);
   return value ? [value] : [];
@@ -505,6 +513,8 @@ export default function DynamicCheckPage({
   rowKey,
   requireThblrek = true,
   thblrekMultiple = false,
+  showThblrekShortcuts = false,
+  requireIdpel = false,
   showUnitupi = true,
   showIdpel = true,
   serverPagination = false,
@@ -944,6 +954,31 @@ export default function DynamicCheckPage({
     setSearched(false);
   };
 
+  const handleThblrekShortcut = (monthsCount) => {
+    const currentValue = form.getFieldValue("thblrek");
+
+    if (!thblrekMultiple) {
+      form.setFieldsValue({
+        thblrek: dayjs().startOf("month").subtract(monthsCount, "month"),
+      });
+      return;
+    }
+
+    const selectedValues = Array.isArray(currentValue)
+      ? currentValue.filter(Boolean)
+      : currentValue
+        ? [currentValue]
+        : [];
+    const shortcutValues = Array.from({ length: monthsCount + 1 }, (_, index) =>
+      dayjs().startOf("month").subtract(index, "month"),
+    );
+    const valuesByMonth = new Map(
+      [...selectedValues, ...shortcutValues].map((value) => [value.format("YYYYMM"), value]),
+    );
+
+    form.setFieldsValue({ thblrek: sortThblrekValues(Array.from(valuesByMonth.values())) });
+  };
+
   useEffect(() => {
     if (!serverPagination || !remoteSearch || !searched) return undefined;
     if (lastDebouncedSearchRef.current === searchKeyword) return undefined;
@@ -1101,6 +1136,7 @@ export default function DynamicCheckPage({
             <Form.Item
               label="THBLREK"
               name="thblrek"
+              normalize={sortThblrekValues}
               rules={
                 requireThblrek ? [{ required: true, message: "THBLREK wajib dipilih" }] : undefined
               }
@@ -1125,8 +1161,35 @@ export default function DynamicCheckPage({
 
           {showIdpel ? (
             <Col xs={24} sm={12} md={8} lg={5}>
-              <Form.Item label="IDPEL" name="idpel">
-                <Input placeholder="Opsional" allowClear />
+              <Form.Item
+                label="IDPEL"
+                name="idpel"
+                rules={requireIdpel ? [{ required: true, message: "IDPEL wajib diisi" }] : undefined}
+              >
+                <Input placeholder={requireIdpel ? "Wajib diisi" : "Opsional"} allowClear />
+              </Form.Item>
+            </Col>
+          ) : null}
+
+          {showThblrekShortcuts ? (
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Form.Item label="Shortcut THBLREK">
+                <Space wrap size={6}>
+                  <Button
+                    size="small"
+                    htmlType="button"
+                    onClick={() => handleThblrekShortcut(3)}
+                  >
+                    3 Bulan
+                  </Button>
+                  <Button
+                    size="small"
+                    htmlType="button"
+                    onClick={() => handleThblrekShortcut(6)}
+                  >
+                    6 Bulan
+                  </Button>
+                </Space>
               </Form.Item>
             </Col>
           ) : null}
