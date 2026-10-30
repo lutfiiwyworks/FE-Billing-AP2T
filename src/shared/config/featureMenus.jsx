@@ -332,6 +332,22 @@ export const featureMenus = [
     variant: "cyan",
   }),
   createFeatureMenu({
+    key: "cekrpbk",
+    label: "Cek Anomali Rupiah Biaya Keterlambatan (BK)",
+    description: "Pengecekan data anomali Rupiah Biaya Keterlambatan Billing.",
+    icon: CalendarOutlined,
+    loader: () => import("../../modules/cekrpbk/pages/CekAnomaliRpBKPage"),
+    variant: "cyan",
+  }),
+    createFeatureMenu({
+    key: "cekselisihrptag",
+    label: "Pengecekan Selisih Rupiah Tagihan (Rptag)",
+    description: "Pengecekan selisih rupiah tagihan billing bulan berjalan.",
+    icon: PoweroffOutlined,
+    loader: () => import("../../modules/ceksilisihrptag/pages/CekSelisihRpTagPage"),
+    variant: "red",
+  }),
+  createFeatureMenu({
     key: "Cek Anomali Koreksi Billing",
     label: "Pengecekan Anomali Pelanggan Koreksi Billing",
     description: "Pengecekan Anomali Pelanggan Koreksi Billing.",
